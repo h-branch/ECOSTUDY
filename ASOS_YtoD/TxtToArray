@@ -1,0 +1,18 @@
+import numpy as np
+import os
+
+
+def txt_to_array():
+    f_path=input("데이터를 저장한 폴더 경로를 입력하세요: ")
+    #f_path=데이터를 저장한 폴더 경로
+    f_list=os.listdir(f_path)
+
+    data=[]
+
+    for f_name in f_list:
+        path=os.path.join(f_path,f_name)
+        temp=np.genfromtxt(path,delimiter=',',comments='#',usecols=range(0,56),dtype=np.int32)
+        data.append(temp) #.append(): 데이터 추가
+
+    array=np.vstack(data) #.vstack(): 열 갯수가 같은 행렬ㆍ벡터ㆍ리스트 합체
+    return array
