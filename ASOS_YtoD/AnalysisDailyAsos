@@ -1,0 +1,70 @@
+import ApiDownload
+#모듈 내 'down=api_download()' code로 인해 import 후 자동 수집 진행
+import numpy as np
+import os
+
+v
+#230101 sample(엑셀로 행렬만 확인: 96(행, 관측소)×56(열, 관측항목))
+f='C:/Users/lhj15/OneDrive/바탕 화면/study/240804 API data/sample/API20230101.txt'
+load=np.genfromtxt(f,delimiter=',',comments='#',usecols=range(0,56),dtype=np.int32)
+print(load)
+print(load.shape)
+
+#데이터를 행렬화하는 모듈
+import TxtToArray
+#데이터 경로: C:/Users/lhj15/OneDrive/바탕 화면/study/240804 API data/Data
+#회사: D:/py_infused/240806 API 허브, 가위바위보 모듈/240804 API data/Data
+daily=TxtToArray.txt_to_array()
+print(daily)v
+
+header=[['YYMMDD', 'STN', 'WS', 'WR', 'WD', 'WS', 'WS', 'WD', 'WS', 'WS', 
+        'TA', 'TA', 'TA', 'TA', 'TA', 'TD', 'TS', 'TG', 'HM', 'HM',
+        'HM', 'PV', 'EV_S', 'EV_L', 'FG', 'PA', 'PS', 'PS', 'PS', 'PS',
+        'PS', 'CA', 'SS', 'SS', 'SS', 'SI', 'SI', 'SI', 'RN', 'RN',
+        'RN', 'RN', 'RN', 'RN', 'RN', 'RN', 'RN', 'SD', 'SD', 'SD',
+        'SD', 'TE', 'TE', 'TE', 'TE', 'TE']]
+
+condition=[['KST', 'ID', 'AVG', 'DAY', 'MAX', 'MAX', 'MAX', 'INS', 'INS', 'INS', 
+           'AVG', 'MAX', 'MAX', 'MIN', 'MIN', 'AVG', 'AVG', 'MIN', 'AVG', 'MIN', 
+           'MIN', 'AVG', 'SMALL', 'LARGE', 'DUR', 'AVG', 'AVG', 'MAX', 'MAX', 'MIN', 
+           'MIN', 'TOT', 'DAY', 'DUR', 'CMB', 'DAY', '60M', '60M', 'DAY', 'D99', 
+           'DUR', '60M', '60M', '10M', '10M', 'POW', 'POW', 'NEW', 'NEW', 'MAX', 
+           'MAX', '5', '10', '15', '30', '50']]
+#EV_S: 소형증발량(㎜) → (임의 대응조건 추가) small / EV_L: 대형증발량(㎜) → (임의 대응조건 추가) large
+#실습 → 기온(TA_AVG)(10), 습도(HM_AVG)(18), 강수(RN_DAY)(38) / 연월일(YYMMDD)(0), 지점(STN)(1)
+#header와 condition을 추가하고 싶었으나, 'int32'≠'str' 이므로 daily에 추가되지 않음
+
+#필요한 열 추출 → 2차원 행렬화
+yymmdd=np.array([daily[:,0]])
+stn=np.array([daily[:,1]])
+ta_avg=np.array([daily[:,10]])
+hm_avg=np.array([daily[:,18]])
+rn_day=np.array([daily[:,38]])
+
+#연평균 분석을 위한 새 행렬로 제작
+array=np.concatenate((yymmdd.T,stn.T,ta_avg.T,hm_avg.T,rn_day.T),axis=1) #.concatenate(): 선택한 축 방향으로 배열 연결
+print(array)
+
+#ASOS 관측소
+asos=np.unique(stn)
+print(asos)
+
+#관측소 별 연평균 기온, 습도, 강수 표출
+result={}
+
+for val in asos:
+    filtering=array[array[:,1]==val]
+    if filtering.size>0:
+        mean_val=np.mean(filtering[:,2:],axis=0)
+        round_val=np.round(mean_val,0)
+        result[val]=round_val
+
+for key,val in result.items():
+    print(f"{key}관측소의 기온(℃), 습도(%), 강수 연평균(㎜): {val}")        
+
+#분석 결과 *.csv 파일 저장
+import csv
+with open('daily_avg.csv','w') as f:
+    w=csv.writer(f)
+    w.writerow(result.keys())
+    w.writerow(result.values())
