@@ -1,0 +1,58 @@
+#import ApiDownload
+import csv #추후 파일 저장에 필요한 모듈
+from TxtToArray import txt_to_array
+# dtype을 실수형으로 지정하면 데이터가 깨지는 문제가 발생, 정수형으로 지정하면 소수점 이하 정보 소실 (신뢰성 하락)
+# 따라서 문자형(str)으로 지정
+from DataAvg import data_avg
+
+
+#데이터 경로: C:/Users/lhj15/OneDrive/바탕 화면/study/240804 API data/Data
+daily=txt_to_array()
+print(daily)
+
+#stn 데이터 그룹화
+stn_group={}
+
+for row in daily:
+    key=row[1]
+    if key not in stn_group:
+        stn_group[key]=[] #x key가 없으면 새로운 list 생성
+    stn_group[key].append(row)
+
+#stn 데이터 그룹 확인
+for key,rows in stn_group.items():
+    print(f'stn {key}')
+    for row in rows:
+        print(row) #x key에 해당하는 값을 key 별로 표출
+    print()
+
+#실습 요구 → 기온(TA_AVG)(10), 습도(HM_AVG)(18), 강수(RN_DAY)(38)
+indices=[10, 18, 38]
+
+#열 제목(관측 요소) 설정
+def col_name(index):
+    if index == 10:
+        return 'TA_AVG'
+    elif index == 18:
+        return 'HM_AVG'
+    elif index == 38:
+        return 'RN_DAY'
+    else:
+        return f'{index} avg'
+
+#열(관측 요소)별 평균 계산
+stn_avg={}
+for key, rows in stn_group.items():
+    stn_avg[key]=data_avg(rows, indices)
+
+#csv 저장
+csv_filename = 'stn_annual_2023.csv'
+with open(csv_filename, 'w', newline='') as csvfile: #newline='': 자동 줄바꿈 해제
+    fieldnames = ['stn'] + [col_name(index) for index in indices]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    
+    writer.writeheader()
+    for key, means in stn_avg.items():
+        row = {'stn': key}
+        row.update({col_name(index): means[index] for index in indices})
+        writer.writerow(row)
