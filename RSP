@@ -1,0 +1,64 @@
+import random
+
+
+#사용자(user)와 컴퓨터(com) 점수 정의
+user=0
+com=0
+#사용자 입력값=game, 컴퓨터 입력값=choice
+
+#가위바위보 시스템 정의
+sys=['가위','바위','보']
+
+#함수 선언(1): 가위바위보 입력값 예외 처리
+def user_choice():
+    while True:
+        try:
+            game=input("안 내면 진다 가위바위보: ")
+        except:
+            print("'가위', '바위', '보' 중 하나를 정확히 입력하세요.")
+            continue
+        if game in ['가위','찌','S','s','SCISSORS','Scissors','scissors']:
+            return '가위'
+        elif game in ['바위','묵','R','r','ROCK','Rock','rock']:
+            return '바위'
+        elif game in ['보','빠','P','p','PAPER','Paper','paper']:
+            return '보'
+
+#함수 선언(2): 승패 판정 및 점수 부여
+def judge(game, choice):
+    global user, com
+    #(2.1) 비긴 경우
+    while game==choice:
+        print("비겼다!")
+        game=user_choice()
+        choice=random.choice(sys)
+    #(2.2) 사용자가 이긴 경우
+    if (game=='가위' and choice=='보') or (game=='바위' and choice=='가위') or (game=='보' and choice=='바위'):
+        user += 1
+        print("현재 점수: 사용자 ", user, "vs 컴퓨터 ", com)
+    #(2.3) 사용자가 진 경우
+    else:
+        com += 1
+        print("현재 점수: 사용자 ", user, "vs 컴퓨터 ", com)
+
+#함수 선언(3): 재게임 입력값 예외 처리
+def re_game():
+    try:
+        again=input("한 번 더 하시겠습니까? Y/N: ")
+    except:
+        print("'Y', 'N' 중 하나를 정확히 입력하세요.")
+    if again in ['Y','YES','Yes','yes','y','예','네','응','좋아요','좋아','ㅇ']:
+        return True
+    elif again in ['N','NO','No','no','n','아니오','아니요','아니','싫어요','싫어','ㄴ']:
+        return False
+    
+#가위바위보 클래스화
+class RPS():
+    while True:
+        game=user_choice()
+        choice=random.choice(sys)
+        judge(game, choice)
+        if not re_game():
+            break
+
+play=RPS()
