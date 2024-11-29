@@ -3,7 +3,7 @@ import ApiDownload
 import numpy as np
 import os
 
-v
+
 #230101 sample(엑셀로 행렬만 확인: 96(행, 관측소)×56(열, 관측항목))
 f='C:/Users/lhj15/OneDrive/바탕 화면/study/240804 API data/sample/API20230101.txt'
 load=np.genfromtxt(f,delimiter=',',comments='#',usecols=range(0,56),dtype=np.int32)
