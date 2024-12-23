@@ -40,6 +40,7 @@ lat
   # fill_value=1e+20,
   # dtype=float32)
   print(lat.shape) # (2881, 2305)
+
 lon=f_data.variables['longitude'][:]
 lon
 print(lon)
